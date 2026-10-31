@@ -4,16 +4,22 @@
 
 ## 실행
 
+**방법 1 — IntelliJ (권장):** `PatientMonitorApplication` 파일을 열고 `main` 옆 ▶ 버튼 → 브라우저에서 http://localhost:8080
+
+**방법 2 — 터미널 (Windows):**
+
 ```bash
-./gradlew bootRun
+.\run.cmd
 ```
+
+`run.cmd` 는 `JAVA_HOME` 이 없으면 IntelliJ 가 받아둔 `%USERPROFILE%\.jdks` 의 JDK 21 을 찾아 씁니다.
+`./gradlew bootRun` 을 직접 쓰려면 `JAVA_HOME` 이 설정되어 있어야 합니다.
+서버 종료는 터미널에서 Ctrl+C.
 
 - 기본은 H2 인메모리 DB → 설치 없이 실행, 재시작하면 초기화
 - H2 콘솔: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:patientdb`, user `sa`)
 - MySQL: `CREATE DATABASE patientdb;` 후 `./gradlew bootRun --args="--spring.profiles.active=mysql"`
   (계정은 환경변수 `DB_USERNAME`, `DB_PASSWORD`)
-
-IntelliJ 에서는 `PatientMonitorApplication` 의 ▶ 버튼으로 실행하면 됩니다.
 
 ## 실시간 대시보드
 
