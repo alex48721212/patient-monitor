@@ -15,6 +15,12 @@ spring:
     init:
       mode: always
       encoding: UTF-8
+
+server:
+  servlet:
+    encoding:
+      # 응답 Content-Type 에 charset=UTF-8 을 명시 (Windows PowerShell 5.1 등에서 한글 깨짐 방지)
+      force-response: true
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
 

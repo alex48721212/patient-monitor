@@ -4,6 +4,8 @@
 
 ## 실행
 
+> 켜기·끄기, 주요 명령어, API 호출 예시, 문제 해결은 **[사용 가이드](docs/GUIDE.md)** 에 정리되어 있습니다.
+
 **방법 1 — IntelliJ (권장):** `PatientMonitorApplication` 파일을 열고 `main` 옆 ▶ 버튼 → 브라우저에서 http://localhost:8080
 
 **방법 2 — 터미널 (Windows):**
