@@ -1,0 +1,33 @@
+# 기본 프로필: H2 인메모리 DB (설치 없이 바로 실행)
+# MySQL로 실행하려면: --spring.profiles.active=mysql
+spring:
+  application:
+    name: patient-monitor
+  datasource:
+    url: jdbc:h2:mem:patientdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+monitor:
+  simulator:
+    enabled: true
+    interval-ms: 2000
+    # 측정값이 비정상 범위로 튈 확률 (0.0 ~ 1.0)
+    spike-probability: 0.05
+  thresholds:
+    heart-rate:        { min: 50,   max: 120 }
+    systolic-bp:       { min: 90,   max: 160 }
+    diastolic-bp:      { min: 50,   max: 100 }
+    spo2:              { min: 92,   max: 100 }
+    temperature:       { min: 35.5, max: 38.0 }
+    respiratory-rate:  { min: 10,   max: 25 }

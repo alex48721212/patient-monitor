@@ -1,0 +1,301 @@
+/* 병상 모니터처럼 어두운 배경 + 항목별 고정 색상 (HR 녹색, SpO2 청록, BP 분홍, RR 노랑, TEMP 흰색) */
+:root {
+    --bg: #0b0f14;
+    --panel: #121820;
+    --panel-2: #18202a;
+    --line: #243040;
+    --text: #e6edf3;
+    --muted: #8b98a8;
+    --hr: #3ddc84;
+    --spo2: #36c8f0;
+    --bp: #ff7aa8;
+    --rr: #f5d547;
+    --temp: #e6edf3;
+    --warning: #ffb020;
+    --critical: #ff4d4f;
+    --primary: #2f81f7;
+    --radius: 10px;
+    font-family: "Pretendard", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+}
+
+button, input, select { font: inherit; }
+
+/* ---------- 상단 바 ---------- */
+.topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand h1 { font-size: 18px; margin: 0; letter-spacing: -0.02em; }
+.brand-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--hr);
+    box-shadow: 0 0 10px var(--hr);
+    animation: pulse 1.2s infinite;
+}
+
+.summary { display: flex; gap: 16px; color: var(--muted); font-size: 14px; }
+.summary b { color: var(--text); font-size: 18px; font-variant-numeric: tabular-nums; margin-right: 2px; }
+.critical-stat b { color: var(--critical); }
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.clock { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+
+.conn {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+}
+.conn-on { color: var(--hr); }
+.conn-off { color: var(--warning); }
+
+.btn {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); }
+.btn-primary { background: var(--primary); border-color: var(--primary); }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-small { padding: 3px 9px; font-size: 12px; }
+
+/* ---------- 본문 레이아웃 ---------- */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    padding: 16px 20px;
+    align-items: start;
+}
+
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+}
+
+.empty { color: var(--muted); text-align: center; padding: 24px; margin: 0; }
+
+/* ---------- 환자 카드 ---------- */
+.card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .2s;
+}
+.card.has-warning { border-color: var(--warning); }
+.card.has-critical {
+    border-color: var(--critical);
+    animation: critical-glow 1s ease-in-out infinite alternate;
+}
+.card.stale .vitals { opacity: .45; }
+
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+}
+.card-title { display: flex; align-items: baseline; gap: 8px; }
+.card-title .name { font-size: 17px; font-weight: 700; }
+.card-title .room {
+    font-size: 12px; color: var(--spo2);
+    border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px;
+}
+.card-sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+.card-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+.badge {
+    background: var(--warning);
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 1px 8px;
+}
+.badge.critical { background: var(--critical); color: #fff; }
+
+.vitals {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--line);
+}
+
+.tile {
+    background: var(--panel);
+    padding: 8px 10px 4px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    grid-column: span 2;
+    position: relative;
+}
+.tile-hr, .tile-spo2 { grid-column: span 3; }
+
+.tile .label { font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.tile .label small { font-weight: 400; color: var(--muted); }
+.tile .value {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+.tile-hr .value, .tile-spo2 .value { font-size: 42px; }
+.tile .spark { width: 100%; height: 34px; display: block; }
+
+.tile-hr   { color: var(--hr); }
+.tile-spo2 { color: var(--spo2); }
+.tile-bp   { color: var(--bp); }
+.tile-rr   { color: var(--rr); }
+.tile-temp { color: var(--temp); }
+
+.tile.warning { background: color-mix(in srgb, var(--warning) 16%, var(--panel)); }
+.tile.warning .value { color: var(--warning); }
+.tile.critical { background: color-mix(in srgb, var(--critical) 22%, var(--panel)); }
+.tile.critical .value { color: var(--critical); animation: blink 1s steps(2, start) infinite; }
+
+.card-foot {
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: flex-end;
+}
+.card.stale .updated { color: var(--warning); }
+
+/* ---------- 알람 패널 ---------- */
+.alarm-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    position: sticky;
+    top: 76px;
+    max-height: calc(100vh - 96px);
+    display: flex;
+    flex-direction: column;
+}
+.alarm-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+}
+.alarm-head h2 { font-size: 15px; margin: 0; }
+.toggle { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+.alarm-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
+.alarm {
+    display: grid;
+    grid-template-columns: 4px 1fr auto;
+    gap: 10px;
+    padding: 10px 14px 10px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+}
+.alarm.new { animation: slide-in .35s ease-out; }
+.alarm .bar { align-self: stretch; background: var(--warning); border-radius: 0 3px 3px 0; }
+.alarm.critical .bar { background: var(--critical); }
+.alarm .who { font-size: 13px; font-weight: 700; }
+.alarm .who span { color: var(--muted); font-weight: 400; margin-left: 4px; }
+.alarm .msg { font-size: 13px; margin-top: 2px; }
+.alarm.critical .msg { color: var(--critical); }
+.alarm .time { font-size: 11px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+/* ---------- 토스트 ---------- */
+.toasts {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 20;
+    width: min(440px, calc(100% - 32px));
+}
+.toast {
+    background: var(--critical);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .5);
+    animation: slide-in .3s ease-out;
+}
+
+/* ---------- 등록 다이얼로그 ---------- */
+.dialog {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: min(400px, calc(100% - 32px));
+}
+.dialog::backdrop { background: rgba(0, 0, 0, .6); }
+.dialog h2 { margin: 0 0 14px; font-size: 17px; }
+.dialog label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.dialog input, .dialog select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+}
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.form-error { color: var(--critical); font-size: 13px; margin: 0 0 8px; }
+
+/* ---------- 애니메이션 ---------- */
+@keyframes pulse { 50% { opacity: .35; } }
+@keyframes blink { to { visibility: hidden; } }
+@keyframes critical-glow {
+    from { box-shadow: 0 0 0 rgba(255, 77, 79, 0); }
+    to   { box-shadow: 0 0 18px rgba(255, 77, 79, .45); }
+}
+@keyframes slide-in { from { opacity: 0; transform: translateY(-6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; }
+}
+
+/* ---------- 좁은 화면 ---------- */
+@media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    .alarm-panel { position: static; max-height: 420px; }
+}
+
+@media (max-width: 520px) {
+    .topbar { padding: 10px 16px; }
+    .layout { padding: 12px 16px; }
+    .patient-grid { grid-template-columns: 1fr; }
+    .summary { order: 3; width: 100%; justify-content: space-between; }
+    .clock { display: none; }
+    .tile .value { font-size: 24px; }
+    .tile-hr .value, .tile-spo2 .value { font-size: 34px; }
+}

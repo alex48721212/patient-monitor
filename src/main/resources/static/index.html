@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>환자 모니터링</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>환자 모니터링</h1>
+    </div>
+    <div class="summary">
+        <span class="stat"><b id="admitted-count">0</b> 입원</span>
+        <span class="stat"><b id="alarm-count">0</b> 미확인 알람</span>
+        <span class="stat critical-stat"><b id="critical-count">0</b> 위급</span>
+    </div>
+    <div class="topbar-right">
+        <span id="clock" class="clock"></span>
+        <span id="conn" class="conn conn-off" title="실시간 연결 상태">연결 중…</span>
+        <button id="open-register" class="btn btn-primary">+ 환자 등록</button>
+    </div>
+</header>
+
+<main class="layout">
+    <section class="patients" aria-label="환자 목록">
+        <div id="patient-grid" class="patient-grid"></div>
+        <p id="empty-patients" class="empty" hidden>입원 중인 환자가 없습니다. 오른쪽 위에서 환자를 등록하세요.</p>
+    </section>
+
+    <aside class="alarm-panel" aria-label="알람">
+        <div class="alarm-head">
+            <h2>미확인 알람</h2>
+            <label class="toggle"><input type="checkbox" id="critical-only"> 위급만</label>
+        </div>
+        <ul id="alarm-list" class="alarm-list"></ul>
+        <p id="empty-alarms" class="empty">미확인 알람이 없습니다.</p>
+    </aside>
+</main>
+
+<div id="toasts" class="toasts" aria-live="assertive"></div>
+
+<dialog id="register-dialog" class="dialog">
+    <form id="register-form" method="dialog">
+        <h2>환자 등록</h2>
+        <label>이름 <input name="name" required maxlength="50"></label>
+        <label>생년월일 <input name="birthDate" type="date" required></label>
+        <label>성별
+            <select name="gender" required>
+                <option value="M">남</option>
+                <option value="F">여</option>
+            </select>
+        </label>
+        <label>병실 <input name="roomNumber" required maxlength="20" placeholder="예: ICU-04"></label>
+        <label>진단명 <input name="diagnosis" maxlength="200"></label>
+        <p id="register-error" class="form-error" hidden></p>
+        <div class="dialog-actions">
+            <button type="button" id="cancel-register" class="btn">취소</button>
+            <button type="submit" class="btn btn-primary">등록</button>
+        </div>
+    </form>
+</dialog>
+
+<template id="patient-card-template">
+    <article class="card">
+        <header class="card-head">
+            <div>
+                <div class="card-title"><span class="name"></span><span class="room"></span></div>
+                <div class="card-sub"><span class="demo"></span> · <span class="diagnosis"></span></div>
+            </div>
+            <div class="card-actions">
+                <span class="badge" hidden></span>
+                <button class="btn btn-small ack-all" hidden>알람 확인</button>
+                <button class="btn btn-small discharge">퇴원</button>
+            </div>
+        </header>
+        <div class="vitals">
+            <div class="tile tile-hr" data-vital="heartRate">
+                <span class="label">HR <small>bpm</small></span>
+                <span class="value">--</span>
+                <canvas class="spark"></canvas>
+            </div>
+            <div class="tile tile-spo2" data-vital="spo2">
+                <span class="label">SpO₂ <small>%</small></span>
+                <span class="value">--</span>
+                <canvas class="spark"></canvas>
+            </div>
+            <div class="tile tile-bp" data-vital="bp">
+                <span class="label">NIBP <small>mmHg</small></span>
+                <span class="value">--</span>
+                <canvas class="spark"></canvas>
+            </div>
+            <div class="tile tile-rr" data-vital="respiratoryRate">
+                <span class="label">RR <small>/min</small></span>
+                <span class="value">--</span>
+                <canvas class="spark"></canvas>
+            </div>
+            <div class="tile tile-temp" data-vital="temperature">
+                <span class="label">TEMP <small>°C</small></span>
+                <span class="value">--</span>
+                <canvas class="spark"></canvas>
+            </div>
+        </div>
+        <footer class="card-foot"><span class="updated">측정 대기</span></footer>
+    </article>
+</template>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

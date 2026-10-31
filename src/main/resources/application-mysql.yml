@@ -1,0 +1,14 @@
+# MySQL 프로필
+# 사전 준비: CREATE DATABASE patientdb CHARACTER SET utf8mb4;
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/patientdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  h2:
+    console:
+      enabled: false
+  sql:
+    init:
+      # 최초 1회 테이블/샘플 데이터 생성 후 never 로 바꾸면 재시작 시 데이터가 유지됩니다
+      mode: always
