@@ -34,6 +34,8 @@ monitor:
     admin-username: admin
     # 사용자가 한 명도 없을 때 만드는 관리자 비밀번호. 비워 두면 임의로 생성해 시작 로그에 한 번 출력한다
     admin-password: ${ADMIN_PASSWORD:}
+    # 관리자의 비밀번호 찾기에 쓰는 이메일 (선택)
+    admin-email: ${ADMIN_EMAIL:}
   simulator:
     enabled: true
     interval-ms: 2000

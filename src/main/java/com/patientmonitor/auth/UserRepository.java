@@ -28,8 +28,8 @@ public class UserRepository {
         return jdbc.queryForObject("SELECT COUNT(*) FROM users", Long.class);
     }
 
-    public void insert(String username, String passwordHash, String role) {
-        jdbc.update("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-                username, passwordHash, role);
+    public void insert(String username, String passwordHash, String name, String email, String role, boolean enabled) {
+        jdbc.update("INSERT INTO users (username, password_hash, name, email, role, enabled) VALUES (?, ?, ?, ?, ?, ?)",
+                username, passwordHash, name, email, role, enabled);
     }
 }

@@ -24,14 +24,17 @@ public class AdminAccountInitializer implements ApplicationRunner {
     private final PasswordEncoder passwordEncoder;
     private final String adminUsername;
     private final String adminPassword;
+    private final String adminEmail;
 
     public AdminAccountInitializer(UserRepository repository, PasswordEncoder passwordEncoder,
                                    @Value("${monitor.security.admin-username}") String adminUsername,
-                                   @Value("${monitor.security.admin-password}") String adminPassword) {
+                                   @Value("${monitor.security.admin-password}") String adminPassword,
+                                   @Value("${monitor.security.admin-email}") String adminEmail) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.adminUsername = adminUsername;
         this.adminPassword = adminPassword;
+        this.adminEmail = adminEmail;
     }
 
     @Override
@@ -41,7 +44,8 @@ public class AdminAccountInitializer implements ApplicationRunner {
         }
         boolean generated = adminPassword.isBlank();
         String password = generated ? generatePassword() : adminPassword;
-        repository.insert(adminUsername, passwordEncoder.encode(password), "ADMIN");
+        repository.insert(adminUsername, passwordEncoder.encode(password), "관리자",
+                adminEmail.isBlank() ? null : adminEmail, "ADMIN", true);
 
         if (generated) {
             log.warn("관리자 계정을 만들었습니다. 아이디: {} / 임시 비밀번호: {}", adminUsername, password);

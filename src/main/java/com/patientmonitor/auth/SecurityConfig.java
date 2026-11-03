@@ -35,7 +35,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(antMatcher(LOGIN_PAGE), antMatcher("/login.js"),
-                                antMatcher("/dashboard.css"), antMatcher("/error")).permitAll()
+                                antMatcher("/signup.html"), antMatcher("/auth-pages.js"),
+                                antMatcher("/dashboard.css"), antMatcher("/error"),
+                                antMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(antMatcher("/h2-console/**")).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form

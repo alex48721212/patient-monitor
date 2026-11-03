@@ -306,6 +306,17 @@ button, input, select { font: inherit; }
 .login-message { font-size: 13px; color: var(--hr); margin: 0 0 14px; }
 .login-message.error { color: var(--critical); }
 
+.login-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 16px 0 0;
+    font-size: 13px;
+}
+.login-links a { color: var(--spo2); text-decoration: none; }
+.login-links a:hover { text-decoration: underline; }
+
 .current-user { color: var(--muted); font-size: 14px; }
 .logout-form { margin: 0; }
 

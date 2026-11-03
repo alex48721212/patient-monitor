@@ -9,8 +9,10 @@ CREATE TABLE users (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     username       VARCHAR(50)   NOT NULL UNIQUE,
     password_hash  VARCHAR(100)  NOT NULL,              -- BCrypt 해시 (평문 저장 금지)
+    name           VARCHAR(50)   NOT NULL,
+    email          VARCHAR(100)  UNIQUE,                -- 아이디/비밀번호 찾기에 사용
     role           VARCHAR(20)   NOT NULL DEFAULT 'USER', -- ADMIN / USER
-    enabled        BOOLEAN       NOT NULL DEFAULT TRUE,
+    enabled        BOOLEAN       NOT NULL DEFAULT TRUE, -- FALSE 면 관리자 승인 대기
     created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -23,9 +23,15 @@ public class LoginSession {
         this.rest = rest;
     }
 
+    /** 로그인 페이지를 열어 CSRF 쿠키를 받는다. 로그인 전 API 를 호출할 때 먼저 부른다 */
+    public LoginSession open() {
+        store(rest.getForEntity("/login.html", String.class));
+        return this;
+    }
+
     /** 로그인 페이지에서 CSRF 쿠키를 받은 뒤 폼을 제출한다. 응답은 302 (Location 으로 성공/실패 구분) */
     public ResponseEntity<String> login(String username, String password) {
-        store(rest.getForEntity("/login.html", String.class));
+        open();
 
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("username", username);
