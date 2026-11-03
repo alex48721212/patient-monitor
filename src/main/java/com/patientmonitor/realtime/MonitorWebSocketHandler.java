@@ -6,12 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +55,22 @@ public class MonitorWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
         sessions.remove(session.getId());
+    }
+
+    /** 로그아웃·세션 만료 후에는 이미 열려 있던 소켓으로도 환자 데이터를 보내지 않는다 */
+    @EventListener
+    public void onHttpSessionDestroyed(HttpSessionDestroyedEvent event) {
+        sessions.values().stream()
+                .filter(session -> event.getId().equals(
+                        session.getAttributes().get(HttpSessionHandshakeInterceptor.HTTP_SESSION_ID_ATTR_NAME)))
+                .forEach(session -> {
+                    sessions.remove(session.getId());
+                    try {
+                        session.close(CloseStatus.POLICY_VIOLATION);
+                    } catch (IOException e) {
+                        log.debug("소켓 종료 실패: {}", session.getId());
+                    }
+                });
     }
 
     public void broadcast(String type, Object data) {

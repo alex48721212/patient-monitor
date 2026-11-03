@@ -3,6 +3,16 @@
 DROP TABLE IF EXISTS alarm;
 DROP TABLE IF EXISTS vital_sign;
 DROP TABLE IF EXISTS patient;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username       VARCHAR(50)   NOT NULL UNIQUE,
+    password_hash  VARCHAR(100)  NOT NULL,              -- BCrypt 해시 (평문 저장 금지)
+    role           VARCHAR(20)   NOT NULL DEFAULT 'USER', -- ADMIN / USER
+    enabled        BOOLEAN       NOT NULL DEFAULT TRUE,
+    created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE patient (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,

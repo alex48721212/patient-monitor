@@ -21,10 +21,19 @@ server:
     encoding:
       # 응답 Content-Type 에 charset=UTF-8 을 명시 (Windows PowerShell 5.1 등에서 한글 깨짐 방지)
       force-response: true
+    session:
+      # WebSocket 메시지는 세션을 연장하지 않으므로, 모니터를 켜 둘 근무 시간만큼 넉넉히 둔다
+      timeout: 8h
+      cookie:
+        same-site: lax
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
 
 monitor:
+  security:
+    admin-username: admin
+    # 사용자가 한 명도 없을 때 만드는 관리자 비밀번호. 비워 두면 임의로 생성해 시작 로그에 한 번 출력한다
+    admin-password: ${ADMIN_PASSWORD:}
   simulator:
     enabled: true
     interval-ms: 2000
