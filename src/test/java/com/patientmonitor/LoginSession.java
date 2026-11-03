@@ -63,6 +63,16 @@ public class LoginSession {
         return store(rest.postForEntity(path, new HttpEntity<>(body, headers), String.class));
     }
 
+    public ResponseEntity<String> get(String path) {
+        return store(rest.exchange(path, HttpMethod.GET, new HttpEntity<>(headers()), String.class));
+    }
+
+    public ResponseEntity<String> delete(String path) {
+        HttpHeaders headers = headers();
+        headers.set("X-XSRF-TOKEN", cookies.get("XSRF-TOKEN"));
+        return store(rest.exchange(path, HttpMethod.DELETE, new HttpEntity<>(headers), String.class));
+    }
+
     public String cookieHeader() {
         return cookies.entrySet().stream()
                 .map(e -> e.getKey() + "=" + e.getValue())

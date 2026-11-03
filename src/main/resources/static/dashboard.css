@@ -317,6 +317,19 @@ button, input, select { font: inherit; }
 .login-links a { color: var(--spo2); text-decoration: none; }
 .login-links a:hover { text-decoration: underline; }
 
+.pending-list { list-style: none; margin: 0 0 12px; padding: 0; max-height: 50vh; overflow-y: auto; }
+.pending-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+}
+.pending-list .sub { color: var(--muted); font-size: 12px; margin-top: 2px; overflow-wrap: anywhere; }
+.pending-list .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
 .current-user { color: var(--muted); font-size: 14px; }
 .logout-form { margin: 0; }
 

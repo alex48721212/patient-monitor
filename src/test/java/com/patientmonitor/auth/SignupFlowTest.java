@@ -67,6 +67,58 @@ class SignupFlowTest {
     }
 
     @Test
+    void adminApprovalEnablesLogin() {
+        signup("approved-user", "approved@example.com", "approved-password");
+        long id = userId("approved-user");
+
+        LoginSession admin = new LoginSession(rest);
+        admin.login("admin", "test-password");
+        assertThat(admin.get("/api/admin/users/pending").getBody()).contains("approved-user");
+        assertThat(admin.postJson("/api/admin/users/" + id + "/approve", "").getStatusCode())
+                .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(admin.get("/api/admin/users/pending").getBody()).doesNotContain("approved-user");
+
+        LoginSession user = new LoginSession(rest);
+        assertThat(user.login("approved-user", "approved-password").getHeaders().getLocation().getPath()).isEqualTo("/");
+        assertThat(user.get("/api/patients").getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void regularUserCannotUseAdminApi() {
+        signup("regular-user", "regular@example.com", "regular-password");
+        long id = userId("regular-user");
+        LoginSession admin = new LoginSession(rest);
+        admin.login("admin", "test-password");
+        admin.postJson("/api/admin/users/" + id + "/approve", "");
+
+        signup("victim-user", "victim@example.com", "victim-password");
+
+        LoginSession user = new LoginSession(rest);
+        user.login("regular-user", "regular-password");
+        assertThat(user.get("/api/admin/users/pending").getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(user.postJson("/api/admin/users/" + userId("victim-user") + "/approve", "").getStatusCode())
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void rejectDeletesOnlyPendingUsers() {
+        signup("rejected-user", "rejected@example.com", "rejected-password");
+        long id = userId("rejected-user");
+        LoginSession admin = new LoginSession(rest);
+        admin.login("admin", "test-password");
+
+        assertThat(admin.delete("/api/admin/users/" + id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE username = 'rejected-user'", Long.class)).isZero();
+
+        // 활성 계정(관리자 본인)은 이 경로로 지워지지 않는다
+        assertThat(admin.delete("/api/admin/users/" + userId("admin")).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    private long userId(String username) {
+        return jdbc.queryForObject("SELECT id FROM users WHERE username = ?", Long.class, username);
+    }
+
+    @Test
     void signupWithoutCsrfTokenIsForbidden() {
         assertThat(new LoginSession(rest).postJson("/api/auth/signup", "{}").getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);

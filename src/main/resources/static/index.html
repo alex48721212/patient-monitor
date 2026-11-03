@@ -21,6 +21,7 @@
         <span id="clock" class="clock"></span>
         <span id="conn" class="conn conn-off" title="실시간 연결 상태">연결 중…</span>
         <button id="open-register" class="btn btn-primary">+ 환자 등록</button>
+        <button id="open-pending" class="btn" hidden>가입 승인 <b id="pending-count">0</b></button>
         <span id="current-user" class="current-user"></span>
         <form id="logout-form" class="logout-form" method="post" action="/logout">
             <input type="hidden" name="_csrf">
@@ -66,6 +67,16 @@
             <button type="submit" class="btn btn-primary">등록</button>
         </div>
     </form>
+</dialog>
+
+<dialog id="pending-dialog" class="dialog">
+    <h2>가입 승인 대기</h2>
+    <ul id="pending-list" class="pending-list"></ul>
+    <p id="pending-empty" class="empty" hidden>대기 중인 가입 신청이 없습니다.</p>
+    <p id="pending-error" class="form-error" hidden></p>
+    <div class="dialog-actions">
+        <button type="button" id="close-pending" class="btn">닫기</button>
+    </div>
 </dialog>
 
 <template id="patient-card-template">

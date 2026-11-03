@@ -415,6 +415,72 @@ function setupRegisterDialog() {
     });
 }
 
+// ---------------------------------------------------------------- 가입 승인 (관리자)
+
+async function loadPending() {
+    const users = await api('/api/admin/users/pending');
+    $('#pending-count').textContent = users.length;
+    $('#pending-empty').hidden = users.length > 0;
+    $('#pending-list').replaceChildren(...users.map(u => {
+        const li = document.createElement('li');
+
+        const info = document.createElement('div');
+        info.textContent = `${u.name} (${u.username})`;
+        const sub = document.createElement('div');
+        sub.className = 'sub';
+        sub.textContent = u.email;
+        info.appendChild(sub);
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const approve = document.createElement('button');
+        approve.className = 'btn btn-small btn-primary';
+        approve.textContent = '승인';
+        approve.addEventListener('click', () => decidePending(`/api/admin/users/${u.id}/approve`, 'POST'));
+        const reject = document.createElement('button');
+        reject.className = 'btn btn-small';
+        reject.textContent = '거절';
+        reject.addEventListener('click', () => {
+            if (confirm(`${u.name} 님의 가입 신청을 거절할까요? 신청 정보가 삭제됩니다.`)) {
+                decidePending(`/api/admin/users/${u.id}`, 'DELETE');
+            }
+        });
+        actions.append(approve, reject);
+
+        li.append(info, actions);
+        return li;
+    }));
+}
+
+async function decidePending(path, method) {
+    const error = $('#pending-error');
+    error.hidden = true;
+    try {
+        await api(path, { method });
+        await loadPending();
+    } catch (e) {
+        error.textContent = e.message;
+        error.hidden = false;
+    }
+}
+
+function setupPendingDialog() {
+    const dialog = $('#pending-dialog');
+    $('#open-pending').hidden = false;
+    $('#open-pending').addEventListener('click', async () => {
+        $('#pending-error').hidden = true;
+        dialog.showModal();
+        try {
+            await loadPending();
+        } catch (e) {
+            $('#pending-error').textContent = e.message;
+            $('#pending-error').hidden = false;
+        }
+    });
+    $('#close-pending').addEventListener('click', () => dialog.close());
+    loadPending().catch(console.error);
+}
+
 // ---------------------------------------------------------------- 유틸
 
 function age(birthDate) {
@@ -440,7 +506,10 @@ $('#logout-form').addEventListener('submit', e => {
     state.loggingOut = true;
     e.target.elements._csrf.value = csrfToken();
 });
-api('/api/me').then(me => { $('#current-user').textContent = me.username; }).catch(console.error);
+api('/api/me').then(me => {
+    $('#current-user').textContent = me.username;
+    if (me.roles.includes('ROLE_ADMIN')) setupPendingDialog();
+}).catch(console.error);
 $('#critical-only').addEventListener('change', () => renderAlarms());
 window.addEventListener('resize', () => state.cards.forEach((_, id) => renderVitals(id)));
 setupRegisterDialog();
