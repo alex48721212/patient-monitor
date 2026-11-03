@@ -14,4 +14,9 @@ public class LoggingAccountNotifier implements AccountNotifier {
     public void sendUsername(String email, String username) {
         log.warn("[메일 대신 로그] 받는 사람: {} / 아이디 찾기 결과: {}", email, username);
     }
+
+    @Override
+    public void sendPasswordResetCode(String email, String code) {
+        log.warn("[메일 대신 로그] 받는 사람: {} / 비밀번호 재설정 코드: {}", email, code);
+    }
 }

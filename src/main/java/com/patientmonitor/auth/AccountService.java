@@ -45,7 +45,7 @@ public class AccountService {
                 .ifPresent(username -> notifier.sendUsername(email, username));
     }
 
-    private static void validatePassword(String password) {
+    static void validatePassword(String password) {
         if (password.length() < MIN_PASSWORD_LENGTH) {
             throw new BadRequestException("비밀번호는 " + MIN_PASSWORD_LENGTH + "자 이상이어야 합니다.");
         }

@@ -30,6 +30,20 @@ public class UserRepository {
                 .stream().findFirst();
     }
 
+    public Optional<Long> findEnabledId(String username, String email) {
+        return jdbc.queryForList("SELECT id FROM users WHERE username = ? AND email = ? AND enabled = TRUE",
+                Long.class, username, email).stream().findFirst();
+    }
+
+    public Optional<Long> findEnabledId(String username) {
+        return jdbc.queryForList("SELECT id FROM users WHERE username = ? AND enabled = TRUE", Long.class, username)
+                .stream().findFirst();
+    }
+
+    public void updatePassword(long id, String passwordHash) {
+        jdbc.update("UPDATE users SET password_hash = ? WHERE id = ?", passwordHash, id);
+    }
+
     public List<PendingUser> findPending() {
         return jdbc.query("SELECT id, username, name, email, created_at FROM users WHERE enabled = FALSE ORDER BY id",
                 (rs, rowNum) -> new PendingUser(

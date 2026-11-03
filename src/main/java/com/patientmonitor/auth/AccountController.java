@@ -15,9 +15,11 @@ import jakarta.validation.Valid;
 public class AccountController {
 
     private final AccountService service;
+    private final PasswordResetService passwordResetService;
 
-    public AccountController(AccountService service) {
+    public AccountController(AccountService service, PasswordResetService passwordResetService) {
         this.service = service;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/signup")
@@ -30,5 +32,17 @@ public class AccountController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void findId(@Valid @RequestBody FindIdRequest req) {
         service.findUsername(req);
+    }
+
+    @PostMapping("/password-reset/request")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void requestPasswordReset(@Valid @RequestBody PasswordResetRequest req) {
+        passwordResetService.requestCode(req);
+    }
+
+    @PostMapping("/password-reset/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest req) {
+        passwordResetService.confirm(req);
     }
 }

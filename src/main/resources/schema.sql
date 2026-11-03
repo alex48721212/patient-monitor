@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS alarm;
 DROP TABLE IF EXISTS vital_sign;
 DROP TABLE IF EXISTS patient;
+DROP TABLE IF EXISTS password_reset_code;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -14,6 +15,16 @@ CREATE TABLE users (
     role           VARCHAR(20)   NOT NULL DEFAULT 'USER', -- ADMIN / USER
     enabled        BOOLEAN       NOT NULL DEFAULT TRUE, -- FALSE 면 관리자 승인 대기
     created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 계정당 유효한 비밀번호 재설정 코드 1개
+CREATE TABLE password_reset_code (
+    user_id     BIGINT     PRIMARY KEY,
+    code_hash   CHAR(64)   NOT NULL,              -- SHA-256 (코드 평문 저장 금지)
+    attempts    INT        NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP  NOT NULL,
+    expires_at  TIMESTAMP  NOT NULL,
+    CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE patient (

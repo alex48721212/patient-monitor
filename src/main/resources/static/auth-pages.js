@@ -26,6 +26,40 @@ async function postJson(path, body) {
     }
 }
 
+const resetRequestForm = document.querySelector('#reset-request-form');
+if (resetRequestForm) {
+    const resetConfirmForm = document.querySelector('#reset-confirm-form');
+
+    resetRequestForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+            await postJson('/api/auth/password-reset/request', Object.fromEntries(new FormData(resetRequestForm)));
+            resetRequestForm.hidden = true;
+            resetConfirmForm.hidden = false;
+            showMessage('입력한 정보와 일치하는 계정이 있으면 이메일로 인증 코드를 보냈습니다. 코드는 10분 동안 유효합니다.');
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    });
+
+    resetConfirmForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const { newPasswordConfirm, ...body } = Object.fromEntries(new FormData(resetConfirmForm));
+        if (body.newPassword !== newPasswordConfirm) {
+            showMessage('새 비밀번호 확인이 일치하지 않습니다.', true);
+            return;
+        }
+        body.username = resetRequestForm.elements.username.value;
+        try {
+            await postJson('/api/auth/password-reset/confirm', body);
+            resetConfirmForm.hidden = true;
+            showMessage('비밀번호를 변경했습니다. 새 비밀번호로 로그인하세요.');
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    });
+}
+
 const findIdForm = document.querySelector('#find-id-form');
 if (findIdForm) {
     findIdForm.addEventListener('submit', async e => {

@@ -4,4 +4,6 @@ package com.patientmonitor.auth;
 public interface AccountNotifier {
 
     void sendUsername(String email, String username);
+
+    void sendPasswordResetCode(String email, String code);
 }
