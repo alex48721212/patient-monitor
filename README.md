@@ -58,7 +58,18 @@ resources/static/                대시보드 (index.html, dashboard.js, dashboa
 
 ## API
 
-모든 API 는 로그인(세션 쿠키)이 필요하고, 쓰기 요청에는 CSRF 토큰(`X-XSRF-TOKEN` 헤더)이 필요합니다.
+`/api/auth/**` 를 제외한 모든 API 는 로그인(세션 쿠키)이 필요합니다. 쓰기 요청에는 모두 CSRF 토큰(`X-XSRF-TOKEN` 헤더)이 필요합니다.
+
+| Method | URL | 설명 |
+|---|---|---|
+| POST | `/api/auth/signup` | 가입 신청 (관리자 승인 전까지 로그인 불가) |
+| POST | `/api/auth/find-id` | 아이디 찾기 |
+| POST | `/api/auth/password-reset/request` | 비밀번호 재설정 코드 요청 |
+| POST | `/api/auth/password-reset/confirm` | 코드와 새 비밀번호로 변경 |
+| GET | `/api/me` | 현재 사용자 |
+| GET | `/api/admin/users/pending` | 승인 대기 목록 (ADMIN) |
+| POST | `/api/admin/users/{id}/approve` | 가입 승인 (ADMIN) |
+| DELETE | `/api/admin/users/{id}` | 가입 거절 (ADMIN) |
 
 | Method | URL | 설명 |
 |---|---|---|

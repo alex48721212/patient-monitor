@@ -40,6 +40,25 @@ $env:ADMIN_PASSWORD = '원하는 비밀번호'
 .\run.cmd
 ```
 
+### 회원가입과 계정 찾기
+
+로그인 화면 아래 링크에서 이용합니다.
+
+| 기능 | 동작 |
+|---|---|
+| 회원가입 | 가입 신청만 접수됩니다. `admin` 이 대시보드의 **가입 승인** 버튼에서 승인해야 로그인할 수 있습니다. |
+| 아이디 찾기 | 이름과 이메일이 일치하면 가입한 이메일로 아이디를 보냅니다. |
+| 비밀번호 찾기 | 아이디와 이메일이 일치하면 6자리 인증 코드를 보냅니다. 코드는 10분 유효, 5번 틀리면 잠기고, 재발급은 1분에 한 번입니다. |
+
+> **아직 메일 서버가 연결되어 있지 않습니다.** 아이디와 인증 코드는 실제 메일 대신 서버 로그(터미널 또는 IntelliJ Run 창)에 `[메일 대신 로그]` 로 출력됩니다. 실제 운영 전에는 메일 발송 구현으로 바꿔야 합니다.
+
+권한은 두 가지입니다.
+
+| 권한 | 할 수 있는 것 |
+|---|---|
+| 일반 (`USER`) | 대시보드와 환자·바이탈·알람 API |
+| 관리자 (`ADMIN`) | 일반 권한 전부 + 가입 승인/거절, H2 콘솔 |
+
 ### 실행 옵션
 
 `run.cmd` 뒤에 붙이면 됩니다. (IntelliJ 에서는 Run → Edit Configurations → Program arguments 에 입력)
@@ -211,6 +230,8 @@ Invoke-RestMethod -Method Post http://localhost:8080/api/alarms/patients/2/ack -
 | `Port 8080 was already in use` | 서버가 이미 켜져 있음 → `.\stop.cmd` 후 다시 실행 |
 | 브라우저에 "사이트에 연결할 수 없음" | 서버가 꺼져 있음 → 터미널에 `Started PatientMonitorApplication` 이 떴는지 확인 |
 | 대시보드 오른쪽 위가 "재연결 중…" | 서버가 꺼졌거나 재시작 중 → 서버가 다시 켜지면 자동으로 연결됨 |
+| 가입했는데 로그인이 안 됨 | 관리자 승인 전입니다 → `admin` 으로 로그인해 **가입 승인** 에서 승인 |
+| 비밀번호 찾기 코드가 메일로 안 옴 | 메일 서버 미연결 상태입니다 → 서버 로그의 `[메일 대신 로그]` 에서 코드 확인 |
 | 터미널 로그의 한글이 깨짐 | `gradlew bootRun` 으로 실행하면 Windows 터미널에서 한글 로그가 깨짐 → `.\run.cmd` 또는 IntelliJ 로 실행 (DB·화면의 한글은 정상) |
 | 테스트가 `ClassNotFoundException: GradleWorkerMain` 으로 실패 | 사용자 폴더명이 한글이라 생기는 Gradle 문제 → `%USERPROFILE%\.gradle\gradle.properties` 에 `org.gradle.jvmargs=-Dfile.encoding=MS949` 가 있는지 확인 (이 PC 는 설정됨) |
 | 데이터를 처음 상태로 되돌리고 싶음 | H2 는 서버를 껐다 켜면 초기화됨 |
