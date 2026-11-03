@@ -19,10 +19,12 @@ public class AccountService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountNotifier notifier;
 
-    public AccountService(UserRepository repository, PasswordEncoder passwordEncoder) {
+    public AccountService(UserRepository repository, PasswordEncoder passwordEncoder, AccountNotifier notifier) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.notifier = notifier;
     }
 
     /** 환자 정보를 다루므로 가입 직후에는 로그인할 수 없고, 관리자가 승인해야 활성화된다 */
@@ -34,6 +36,13 @@ public class AccountService {
         } catch (DuplicateKeyException e) {
             throw new ConflictException("이미 사용 중인 아이디 또는 이메일입니다.");
         }
+    }
+
+    /** 가입 여부가 드러나지 않도록 호출자에게는 결과를 알려주지 않고, 일치할 때만 등록된 이메일로 보낸다 */
+    public void findUsername(FindIdRequest req) {
+        String email = normalizeEmail(req.email());
+        repository.findUsernameByNameAndEmail(req.name().trim(), email)
+                .ifPresent(username -> notifier.sendUsername(email, username));
     }
 
     private static void validatePassword(String password) {

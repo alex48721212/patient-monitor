@@ -25,4 +25,10 @@ public class AccountController {
     public void signup(@Valid @RequestBody SignupRequest req) {
         service.signup(req);
     }
+
+    @PostMapping("/find-id")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void findId(@Valid @RequestBody FindIdRequest req) {
+        service.findUsername(req);
+    }
 }

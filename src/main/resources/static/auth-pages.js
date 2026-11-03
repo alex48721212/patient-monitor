@@ -26,6 +26,20 @@ async function postJson(path, body) {
     }
 }
 
+const findIdForm = document.querySelector('#find-id-form');
+if (findIdForm) {
+    findIdForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+            await postJson('/api/auth/find-id', Object.fromEntries(new FormData(findIdForm)));
+            findIdForm.hidden = true;
+            showMessage('입력한 정보와 일치하는 계정이 있으면 가입한 이메일로 아이디를 보냈습니다.');
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    });
+}
+
 const signupForm = document.querySelector('#signup-form');
 if (signupForm) {
     signupForm.addEventListener('submit', async e => {

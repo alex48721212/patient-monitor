@@ -25,6 +25,11 @@ public class UserRepository {
                 username).stream().findFirst();
     }
 
+    public Optional<String> findUsernameByNameAndEmail(String name, String email) {
+        return jdbc.queryForList("SELECT username FROM users WHERE name = ? AND email = ?", String.class, name, email)
+                .stream().findFirst();
+    }
+
     public List<PendingUser> findPending() {
         return jdbc.query("SELECT id, username, name, email, created_at FROM users WHERE enabled = FALSE ORDER BY id",
                 (rs, rowNum) -> new PendingUser(

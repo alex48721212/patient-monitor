@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>아이디 찾기 - 환자 모니터링</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="login-page">
+<main class="login-box">
+    <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>아이디 찾기</h1>
+    </div>
+    <p id="auth-message" class="login-message" role="alert" hidden></p>
+    <form id="find-id-form">
+        <label>이름 <input name="name" autocomplete="name" required autofocus></label>
+        <label>가입한 이메일 <input name="email" type="email" autocomplete="email" required></label>
+        <button type="submit" class="btn btn-primary">아이디 찾기</button>
+    </form>
+    <p class="login-links"><a href="login.html">로그인으로 돌아가기</a></p>
+</main>
+<script src="auth-pages.js"></script>
+</body>
+</html>
