@@ -21,6 +21,11 @@
         <span id="clock" class="clock"></span>
         <span id="conn" class="conn conn-off" title="실시간 연결 상태">연결 중…</span>
         <button id="open-register" class="btn btn-primary">+ 환자 등록</button>
+        <span id="current-user" class="current-user"></span>
+        <form id="logout-form" class="logout-form" method="post" action="/logout">
+            <input type="hidden" name="_csrf">
+            <button type="submit" class="btn">로그아웃</button>
+        </form>
     </div>
 </header>
 

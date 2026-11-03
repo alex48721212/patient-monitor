@@ -15,6 +15,7 @@ const state = {
     alarms: [],            // 미확인 알람 (최신 먼저)
     ws: null,
     reconnectDelay: 1000,
+    loggingOut: false,
 };
 
 // 타일 ↔ 측정값/정상범위 매핑
@@ -30,11 +31,20 @@ const $ = sel => document.querySelector(sel);
 
 // ---------------------------------------------------------------- API
 
+function csrfToken() {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
 async function api(path, options = {}) {
     const res = await fetch(path, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': csrfToken() },
         ...options,
     });
+    if (res.status === 401) {
+        location.href = '/login.html';
+        throw new Error('로그인이 필요합니다');
+    }
     if (!res.ok) {
         let detail = res.statusText;
         try { detail = (await res.json()).detail || detail; } catch { /* 본문 없음 */ }
@@ -99,8 +109,12 @@ function connect() {
         try { await loadAll(); } catch (e) { console.error(e); }
     };
     ws.onmessage = e => handleMessage(JSON.parse(e.data));
-    ws.onclose = () => {
+    ws.onclose = async () => {
+        // 로그아웃 중이면 서버 리다이렉트(?logout)를 그대로 따른다
+        if (state.loggingOut) return;
         setConnection(false);
+        // 세션이 끝나 끊긴 경우라면 api 가 로그인 페이지로 보낸다
+        try { await api('/api/me'); } catch (e) { console.debug(e); }
         setTimeout(connect, state.reconnectDelay);
         state.reconnectDelay = Math.min(state.reconnectDelay * 2, 15000);
     };
@@ -422,6 +436,11 @@ function tick() {
 
 // ---------------------------------------------------------------- 시작
 
+$('#logout-form').addEventListener('submit', e => {
+    state.loggingOut = true;
+    e.target.elements._csrf.value = csrfToken();
+});
+api('/api/me').then(me => { $('#current-user').textContent = me.username; }).catch(console.error);
 $('#critical-only').addEventListener('change', () => renderAlarms());
 window.addEventListener('resize', () => state.cards.forEach((_, id) => renderVitals(id)));
 setupRegisterDialog();

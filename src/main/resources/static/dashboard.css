@@ -271,6 +271,44 @@ button, input, select { font: inherit; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
 .form-error { color: var(--critical); font-size: 13px; margin: 0 0 8px; }
 
+/* ---------- 로그인 ---------- */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.login-box {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: min(360px, 100%);
+}
+.login-box .brand { margin-bottom: 18px; }
+.login-box label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+.login-box input:not([type="hidden"]) {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 9px;
+}
+.login-box button { width: 100%; margin-top: 4px; }
+.login-message { font-size: 13px; color: var(--hr); margin: 0 0 14px; }
+.login-message.error { color: var(--critical); }
+
+.current-user { color: var(--muted); font-size: 14px; }
+.logout-form { margin: 0; }
+
 /* ---------- 애니메이션 ---------- */
 @keyframes pulse { 50% { opacity: .35; } }
 @keyframes blink { to { visibility: hidden; } }

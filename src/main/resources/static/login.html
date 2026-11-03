@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>로그인 - 환자 모니터링</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="login-page">
+<main class="login-box">
+    <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>환자 모니터링</h1>
+    </div>
+    <p id="login-message" class="login-message" role="alert" hidden></p>
+    <form id="login-form" method="post" action="/login">
+        <label>아이디 <input name="username" autocomplete="username" required autofocus></label>
+        <label>비밀번호 <input name="password" type="password" autocomplete="current-password" required></label>
+        <input type="hidden" name="_csrf">
+        <button type="submit" class="btn btn-primary">로그인</button>
+    </form>
+</main>
+<script src="login.js"></script>
+</body>
+</html>
