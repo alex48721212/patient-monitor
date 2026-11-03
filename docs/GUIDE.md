@@ -27,6 +27,19 @@
 - Java 를 PATH 에 등록하지 않아도 IntelliJ 가 받아둔 JDK 21 을 자동으로 찾습니다.
 - 이 터미널 창은 서버가 쓰고 있으니 닫지 말고 그대로 두세요.
 
+### 로그인
+
+대시보드를 쓰려면 로그인해야 합니다.
+
+- 아이디: `admin`
+- 비밀번호: 서버를 시작할 때 터미널(또는 IntelliJ Run 창)에 나오는 `임시 비밀번호`
+- 기본 H2 는 재시작하면 초기화되므로 임시 비밀번호도 매번 바뀝니다. 고정하려면 실행 전에 환경변수를 지정하세요.
+
+```powershell
+$env:ADMIN_PASSWORD = '원하는 비밀번호'
+.\run.cmd
+```
+
 ### 실행 옵션
 
 `run.cmd` 뒤에 붙이면 됩니다. (IntelliJ 에서는 Run → Edit Configurations → Program arguments 에 입력)
@@ -80,6 +93,8 @@
 | User Name | `sa` |
 | Password | (비워둠) |
 
+H2 콘솔은 대시보드에 `admin` 으로 로그인한 상태에서만 열립니다.
+
 로그인 후 SQL 예시:
 
 ```sql
@@ -117,47 +132,52 @@ SELECT * FROM alarm WHERE severity = 'CRITICAL' ORDER BY created_at DESC LIMIT 1
 ## 5. API 를 터미널에서 호출해보기 (PowerShell)
 
 서버가 켜진 상태에서 **다른 터미널**을 열고 실행합니다.
-(PowerShell 의 `curl` 은 진짜 curl 이 아니라서 `Invoke-RestMethod` 를 씁니다.)
+API 도 로그인이 필요하므로, 먼저 로그인해서 세션(`$s`)을 만듭니다.
+쓰기 요청(POST 등)에는 CSRF 토큰(`$h`)도 함께 보냅니다.
+
+```powershell
+# 로그인 (비밀번호는 입력창에 직접 입력)
+$cred = Get-Credential -UserName admin -Message '환자 모니터링 로그인'
+$s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$null = Invoke-WebRequest -UseBasicParsing http://localhost:8080/login.html -WebSession $s
+$t = ($s.Cookies.GetCookies('http://localhost:8080') | Where-Object Name -eq 'XSRF-TOKEN').Value
+$null = Invoke-WebRequest -UseBasicParsing -Method Post http://localhost:8080/login -WebSession $s -Body @{ username = $cred.UserName; password = $cred.GetNetworkCredential().Password; _csrf = $t }
+Invoke-RestMethod http://localhost:8080/api/me -WebSession $s
+$h = @{ 'X-XSRF-TOKEN' = ($s.Cookies.GetCookies('http://localhost:8080') | Where-Object Name -eq 'XSRF-TOKEN').Value }
+```
+
+조회:
 
 ```powershell
 # 입원 환자 목록
-Invoke-RestMethod http://localhost:8080/api/patients?status=ADMITTED
+Invoke-RestMethod http://localhost:8080/api/patients?status=ADMITTED -WebSession $s
 
 # 1번 환자 최신 측정값
-Invoke-RestMethod http://localhost:8080/api/patients/1/vitals/latest
-
-# 1번 환자 최근 10분 평균/최소/최대
-Invoke-RestMethod "http://localhost:8080/api/patients/1/vitals/summary?minutes=10"
+Invoke-RestMethod http://localhost:8080/api/patients/1/vitals/latest -WebSession $s
 
 # 미확인 위급 알람
-Invoke-RestMethod "http://localhost:8080/api/alarms?acknowledged=false&severity=CRITICAL"
-
-# 환자별 미확인 알람 수
-Invoke-RestMethod http://localhost:8080/api/alarms/stats
+Invoke-RestMethod "http://localhost:8080/api/alarms?acknowledged=false&severity=CRITICAL" -WebSession $s
 ```
 
 측정값 직접 넣기 (장비 연동 흉내) — 대시보드에 바로 반영되고 SpO₂ 위급 알람이 생깁니다:
 
 ```powershell
 $body = '{"heartRate":88,"systolicBp":125,"diastolicBp":82,"spo2":80,"temperature":36.9,"respiratoryRate":18}'
-Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/patients/1/vitals -ContentType 'application/json' -Body $body
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/patients/1/vitals -ContentType 'application/json' -Body $body -WebSession $s -Headers $h
 ```
 
 환자 등록 (한글이 들어가므로 UTF-8 로 변환해서 보냄):
 
 ```powershell
 $body = '{"name":"홍길동","birthDate":"1970-01-01","gender":"M","roomNumber":"ICU-05","diagnosis":"관찰"}'
-Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/patients -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body))
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/patients -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body)) -WebSession $s -Headers $h
 ```
 
 알람 확인 처리:
 
 ```powershell
-# 알람 1건 (id=1)
-Invoke-RestMethod -Method Post http://localhost:8080/api/alarms/1/ack
-
 # 2번 환자의 미확인 알람 전부
-Invoke-RestMethod -Method Post http://localhost:8080/api/alarms/patients/2/ack
+Invoke-RestMethod -Method Post http://localhost:8080/api/alarms/patients/2/ack -WebSession $s -Headers $h
 ```
 
 환자 등록·퇴원·알람 확인은 대시보드 화면에서도 할 수 있습니다.

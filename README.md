@@ -58,6 +58,8 @@ resources/static/                대시보드 (index.html, dashboard.js, dashboa
 
 ## API
 
+모든 API 는 로그인(세션 쿠키)이 필요하고, 쓰기 요청에는 CSRF 토큰(`X-XSRF-TOKEN` 헤더)이 필요합니다.
+
 | Method | URL | 설명 |
 |---|---|---|
 | GET | `/api/patients?status=ADMITTED` | 환자 목록 |
